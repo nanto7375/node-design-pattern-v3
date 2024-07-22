@@ -17,6 +17,8 @@ module.exports = {
   },
   parser: 'babel-eslint',
   rules: {
-    strict: 1
+    strict: 1,
+    "no-unused-vars": "warn",
+    "handle-callback-error": "off"
   }
 }
