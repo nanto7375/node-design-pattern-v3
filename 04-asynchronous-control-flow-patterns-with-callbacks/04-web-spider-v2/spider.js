@@ -29,21 +29,10 @@ function download (url, filename, cb) {
 function spiderLinks (currentUrl, body, nesting, cb) {
   if (nesting === 0) return process.nextTick(cb);
 
-  const links = getPageLinks(currentUrl, body); // [1]
+  const links = getPageLinks(currentUrl, body);
   if (links.length === 0) return process.nextTick(cb);
 
-  // function iterate (index) { // [2]
-  //   if (index === links.length) return cb();
-
-  //   spider(links[index], nesting - 1, function (err) { // [3]
-  //     if (err) return cb(err);
-  //     iterate(index + 1);
-  //   });
-  // }
-
-  iterateSeries(links, (link, cb) => spider(link, nesting -1, cb), cb);
-
-  // iterate(0); // [4]
+  iterateSeries(links, (link, _cb) => spider(link, nesting -1, _cb), cb);
 }
 
 // function spiderLinks (currentUrl, body, nesting, cb) {
