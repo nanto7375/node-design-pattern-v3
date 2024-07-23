@@ -33,7 +33,7 @@ export class FileConcator {
   }
 
   _writeSavedData (destination, cb) {
-    this._fs.writeFile(destination, this._queue.getConcatedDatas(), cb)
+    this._fs.writeFile(destination, this._queue.getConcatedData(), cb)
   }
 
   _isAllCompleted (completedLength, filesLength, hasError) {
