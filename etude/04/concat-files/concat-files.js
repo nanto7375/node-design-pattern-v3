@@ -21,7 +21,7 @@ export class FileConcator {
         this.writeFile(destination, (writeError) => {
           console.log('concate files')
           this.queue.removeAll()
-          return indexCallback(writeError && writeError)
+          return indexCallback(writeError)
         })
       }
     }))
@@ -34,7 +34,6 @@ export class FileConcator {
       }
       console.log('read', file)
 
-      this.queue.setDataWithIndex(Buffer.from(data).toString())
       done(null, Buffer.from(data).toString())
     })
   }
@@ -42,7 +41,7 @@ export class FileConcator {
   writeFile (destination, cb) {
     this.fs.writeFile(destination, this.queue.getConcatedDatas(), (writeError) => {
       console.log('write', destination)
-      return cb(writeError && writeError)
+      return cb(writeError)
     })
   }
 }
