@@ -12,16 +12,12 @@ const [,, destination, ...files] = process.argv
 class DataQueue {
   queue = []
 
-  setDataWithIndex (data, index) {
+  setDataViaIndex (data, index) {
     this.queue[index] = data
   }
 
   getConcatedDatas () {
     return this.queue.join('')
-  }
-
-  removeAll () {
-    this.queue = []
   }
 }
 
