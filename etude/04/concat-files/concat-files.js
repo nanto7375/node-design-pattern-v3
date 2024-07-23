@@ -16,9 +16,10 @@ export class FileConcator {
         return indexCallback(readError)
       }
 
-      this.queue.setDataViaIndex(data, index)
+      console.log('read', file)
+      this.queue.setDataViaIndex(Buffer.from(data).toString(), index)
 
-      if (++completed !== files.length && !hasError) {
+      if (++completed !== files.length && hasError) {
         return
       }
       this.writeFile(destination, this.queue.getConcatedDatas(), indexCallback)
@@ -26,14 +27,7 @@ export class FileConcator {
   }
 
   readFile (file, done) {
-    this.fs.readFile(file, (readError, data) => {
-      if (readError) {
-        return done(readError)
-      }
-      console.log('read', file)
-
-      done(null, Buffer.from(data).toString())
-    })
+    this.fs.readFile(file, done)
   }
 
   writeFile (destination, data, cb) {
