@@ -7,7 +7,7 @@ import { FileConcator } from './concat-files.js'
 // 3. destination파일에 저장하기
 // *파일 목록 순서대로 내용을 합쳐야 한다
 
-const [,, destination, ...files] = process.argv
+// const [,, destination, ...files] = process.argv
 
 class DataQueue {
   queue = []
@@ -22,7 +22,7 @@ class DataQueue {
 }
 
 const fileConcator = new FileConcator(fs, new DataQueue())
-fileConcator.concatFiles(files, destination, (error) => {
+fileConcator.concatFiles(['a.txt', 'b.txt'], 'dest.txt', (error) => {
   if (error) {
     console.log(error)
     return process.exit(1)
