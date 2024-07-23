@@ -19,7 +19,7 @@ export class FileConcator {
       console.log('read', file)
       this.queue.setDataViaIndex(Buffer.from(data).toString(), index)
 
-      if (++completed !== files.length && hasError) {
+      if (++completed !== files.length || hasError) {
         return
       }
       this.writeFile(destination, this.queue.getConcatedDatas(), indexCallback)
