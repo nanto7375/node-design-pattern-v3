@@ -1,41 +1,61 @@
 import fs from 'fs'
 
 class DataQueue {
-  q = []
+  queue = []
 
-  push (data) {
-    this.q.push(Buffer.from(data).toString())
+  setDataWithIndex (data, index) {
+    this.queue[index] = data
   }
 
-  concatAllData () {
-    return this.q.join('')
+  getConcatedDatas () {
+    return this.queue.join('')
   }
 }
 
-const queue = new DataQueue()
-
-const readFile = (file, dest, cb) => {
+const readFile = (file, index, done) => {
+  if (file === 'a.txt') {
+    return setTimeout(() => {
+      fs.readFile(file, (readError, data) => {
+        if (readError) {
+          return done(readError)
+        }
+        console.log('read', file)
+        done(null, Buffer.from(data).toString(), index)
+      })
+    }, 1000 * 1)
+  }
   fs.readFile(file, (error, data) => {
     if (error) {
-      return cb(error)
+      return done(error)
     }
     console.log('read', file)
-    queue.push(data)
-    cb()
+    done(null, Buffer.from(data).toString(), index)
   })
 }
 
-export const concatFiles = (dest, cb, ...files) => {
-  const iterate = (index) => {
-    if (index === files.length) {
-      return cb(null, queue.concatAllData())
+export const concatFiles = (files, destination, indexCallback) => {
+  const dataQueue = new DataQueue()
+
+  let completed = 0
+  let hasError = false
+
+  const done = (readError, data, index) => {
+    if (readError) {
+      hasError = true
+      return indexCallback(readError)
     }
-    readFile(files[index], dest, (error) => {
-      if (error) {
-        return cb(error)
-      }
-      iterate(index + 1)
-    })
+
+    dataQueue.setDataWithIndex(data, index)
+
+    if (++completed === files.length && !hasError) {
+      fs.writeFile(destination, dataQueue.getConcatedDatas(), (writeError) => {
+        if (writeError) {
+          return indexCallback(writeError)
+        }
+        indexCallback()
+      })
+    }
   }
-  iterate(0)
+
+  files.forEach((file, index) => readFile(file, index, done))
 }
