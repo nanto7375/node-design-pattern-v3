@@ -10,27 +10,29 @@ export class FileConcator {
   concatFiles (files, destination, indexCallback) {
     let completed = 0
     let hasError = false
-    files.forEach((file, index) => this.readFile(file, (readError, data) => {
+    files.forEach((file, index) => this.readFileWithSaving(file, index, (readError) => {
       if (readError) {
         hasError = true
         return indexCallback(readError)
       }
-
-      console.log('read', file)
-      this.queue.setDataViaIndex(Buffer.from(data).toString(), index)
-
-      if (++completed !== files.length || hasError) {
-        return
+      if (++completed === files.length && !hasError) {
+        this.writeFile(destination, indexCallback)
       }
-      this.writeFile(destination, this.queue.getConcatedDatas(), indexCallback)
     }))
   }
 
-  readFile (file, done) {
-    this.fs.readFile(file, done)
+  readFileWithSaving (file, index, cb) {
+    this.fs.readFile(file, (error, data) => {
+      if (error) {
+        return cb(error)
+      }
+      console.log('read', file)
+      this.queue.setDataViaIndex(Buffer.from(data).toString(), index)
+      cb()
+    })
   }
 
-  writeFile (destination, data, cb) {
-    this.fs.writeFile(destination, data, cb)
+  writeSavedData (destination, cb) {
+    this.fs.writeFile(destination, this.queue.getConcatedDatas(), cb)
   }
 }
