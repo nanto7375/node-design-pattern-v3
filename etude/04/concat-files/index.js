@@ -22,7 +22,7 @@ class DataQueue {
 }
 
 const fileConcator = new FileConcator(fs, new DataQueue())
-fileConcator.concatFiles(['a.txt', 'b.txt'], 'dest.txt', (error) => {
+fileConcator.concatFiles(['./files/a.txt', './files/b.txt'], './files/dest.txt', (error) => {
   if (error) {
     console.log(error)
     return process.exit(1)
