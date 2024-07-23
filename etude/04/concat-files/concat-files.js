@@ -15,13 +15,23 @@ export class FileConcator {
         hasError = true
         return indexCallback(readError)
       }
+      if (hasError) {
+        return
+      }
+
       this.queue.setDataWithIndex(Buffer.from(data).toString(), index)
 
-      if (++completed === files.length && !hasError) {
+      if (++completed === files.length) {
         this.writeFile(destination, (writeError) => {
-          console.log('concate files')
-          this.queue.removeAll()
-          return indexCallback(writeError)
+          try {
+            if (writeError) {
+              return indexCallback(writeError)
+            }
+            console.log('concate files')
+            return indexCallback()
+          } finally {
+            this.queue.removeAll()
+          }
         })
       }
     }))
@@ -40,8 +50,11 @@ export class FileConcator {
 
   writeFile (destination, cb) {
     this.fs.writeFile(destination, this.queue.getConcatedDatas(), (writeError) => {
+      if (writeError) {
+        return cb(writeError)
+      }
       console.log('write', destination)
-      return cb(writeError)
+      return cb()
     })
   }
 }
