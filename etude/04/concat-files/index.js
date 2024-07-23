@@ -1,4 +1,5 @@
-import { concatFiles } from './concat-files.js'
+import fs from 'fs'
+import { FileConcator } from './concat-files.js'
 
 // 4-1 파일 연결 (callback style)
 // 1. file 모두 읽기
@@ -8,7 +9,24 @@ import { concatFiles } from './concat-files.js'
 
 const [,, destination, ...files] = process.argv
 
-concatFiles(files, destination, (error) => {
+class DataQueue {
+  queue = []
+
+  setDataWithIndex (data, index) {
+    this.queue[index] = data
+  }
+
+  getConcatedDatas () {
+    return this.queue.join('')
+  }
+
+  removeAll () {
+    this.queue = []
+  }
+}
+
+const fileConcator = new FileConcator(fs, new DataQueue())
+fileConcator.concatFiles(files, destination, (error) => {
   if (error) {
     console.log(error)
     return process.exit(1)

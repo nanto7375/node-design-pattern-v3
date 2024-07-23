@@ -1,61 +1,48 @@
-import fs from 'fs'
+export class FileConcator {
+  fs
+  queue
 
-class DataQueue {
-  queue = []
-
-  setDataWithIndex (data, index) {
-    this.queue[index] = data
+  constructor (fs, dataQueue) {
+    this.fs = fs
+    this.queue = dataQueue
   }
 
-  getConcatedDatas () {
-    return this.queue.join('')
-  }
-}
+  concatFiles (files, destination, indexCallback) {
+    let completed = 0
+    let hasError = false
+    files.forEach((file, index) => this.readFile(file, (readError, data) => {
+      if (readError) {
+        hasError = true
+        return indexCallback(readError)
+      }
+      this.queue.setDataWithIndex(Buffer.from(data).toString(), index)
 
-const readFile = (file, index, done) => {
-  if (file === 'a.txt') {
-    return setTimeout(() => {
-      fs.readFile(file, (readError, data) => {
-        if (readError) {
-          return done(readError)
-        }
-        console.log('read', file)
-        done(null, Buffer.from(data).toString(), index)
-      })
-    }, 1000 * 1)
-  }
-  fs.readFile(file, (error, data) => {
-    if (error) {
-      return done(error)
-    }
-    console.log('read', file)
-    done(null, Buffer.from(data).toString(), index)
-  })
-}
-
-export const concatFiles = (files, destination, indexCallback) => {
-  const dataQueue = new DataQueue()
-
-  let completed = 0
-  let hasError = false
-
-  const done = (readError, data, index) => {
-    if (readError) {
-      hasError = true
-      return indexCallback(readError)
-    }
-
-    dataQueue.setDataWithIndex(data, index)
-
-    if (++completed === files.length && !hasError) {
-      fs.writeFile(destination, dataQueue.getConcatedDatas(), (writeError) => {
-        if (writeError) {
-          return indexCallback(writeError)
-        }
-        indexCallback()
-      })
-    }
+      if (++completed === files.length && !hasError) {
+        this.writeFile(destination, (writeError) => {
+          console.log('concate files')
+          this.queue.removeAll()
+          return indexCallback(writeError && writeError)
+        })
+      }
+    }))
   }
 
-  files.forEach((file, index) => readFile(file, index, done))
+  readFile (file, done) {
+    this.fs.readFile(file, (readError, data) => {
+      if (readError) {
+        return done(readError)
+      }
+      console.log('read', file)
+
+      this.queue.setDataWithIndex(Buffer.from(data).toString())
+      done(null, Buffer.from(data).toString())
+    })
+  }
+
+  writeFile (destination, cb) {
+    this.fs.writeFile(destination, this.queue.getConcatedDatas(), (writeError) => {
+      console.log('write', destination)
+      return cb(writeError && writeError)
+    })
+  }
 }
