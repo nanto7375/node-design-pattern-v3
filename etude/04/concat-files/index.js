@@ -16,7 +16,7 @@ class DataQueue {
     this.queue[index] = data
   }
 
-  getConcatedData () {
+  getConcatedDatas () {
     return this.queue.join('')
   }
 }

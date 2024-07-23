@@ -16,7 +16,7 @@ export class FileConcator {
         return cb(readError)
       }
       if (this._isAllCompleted(++completed, files.length, hasError)) {
-        this._writeSavedData(destination, cb)
+        this._writeSavedDatas(destination, cb)
       }
     }))
   }
@@ -32,8 +32,8 @@ export class FileConcator {
     })
   }
 
-  _writeSavedData (destination, cb) {
-    this._fs.writeFile(destination, this._queue.getConcatedData(), cb)
+  _writeSavedDatas (destination, cb) {
+    this._fs.writeFile(destination, this._queue.getConcatedDatas(), cb)
   }
 
   _isAllCompleted (completedLength, filesLength, hasError) {
